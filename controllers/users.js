@@ -4,7 +4,6 @@ const User = require('../models/user');
 const BadRequestError = require('../errors/bad-request-err');
 const EmailError = require('../errors/email-err');
 
-// eslint-disable-next-line consistent-return
 module.exports.getCurrentUser = (req, res, next) => {
   const { _id } = req.user;
 
