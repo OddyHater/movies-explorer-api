@@ -4,10 +4,42 @@ const mongoose = require('mongoose');
 const { PORT = 3000 } = process.env;
 const app = express();
 
-mongoose.connect('mongodb://127.0.0.1:27017/mestodb', {
+const { errors } = require('celebrate');
+
+const userRouter = require('./routes/users');
+const movieRouter = require('./routes/movies');
+
+mongoose.connect('mongodb://127.0.0.1:27017/bitfilmsdb', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
   autoIndex: true,
+});
+
+app.use(express.json());
+
+app.get('/crash-test', () => {
+  setTimeout(() => {
+    throw new Error('Сервер сейчас упадёт');
+  }, 0);
+});
+
+app.use('/', userRouter);
+app.use('/', movieRouter);
+
+app.use(errors());
+
+app.use((err, req, res, next) => {
+  const { statusCode = 500, message } = err;
+
+  res
+    .status(statusCode)
+    .send({
+      message: statusCode === 500
+        ? 'На сервере произошла ошибка'
+        : message,
+    });
+
+  next();
 });
 
 app.listen(PORT, () => {
