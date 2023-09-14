@@ -2,12 +2,9 @@ const express = require('express');
 
 const router = express.Router();
 
-const { getCurrentUser } = require('../controllers/users');
+const { getCurrentUser, updateProfile } = require('../controllers/users');
 
 router.get('/users/me', getCurrentUser);
-
-router.patch('/users/me', () => {
-
-});
+router.patch('/users/me', updateProfile);
 
 module.exports = router;

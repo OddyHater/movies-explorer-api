@@ -6,8 +6,19 @@ const app = express();
 
 const { errors } = require('celebrate');
 
+// Routes
 const userRouter = require('./routes/users');
 const movieRouter = require('./routes/movies');
+// Routes
+
+// Controllers
+const { createUser } = require('./controllers/users');
+const { login } = require('./controllers/login');
+// Controllers
+
+// Middlewares
+const { auth } = require('./middlewares/auth');
+// Middlewares
 
 mongoose.connect('mongodb://127.0.0.1:27017/bitfilmsdb', {
   useNewUrlParser: true,
@@ -22,6 +33,11 @@ app.get('/crash-test', () => {
     throw new Error('Сервер сейчас упадёт');
   }, 0);
 });
+
+app.post('/signin', login);
+app.use('/signup', createUser);
+
+app.use(auth);
 
 app.use('/', userRouter);
 app.use('/', movieRouter);
