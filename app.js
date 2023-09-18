@@ -18,6 +18,7 @@ const { login } = require('./controllers/login');
 
 // Middlewares
 const { auth } = require('./middlewares/auth');
+const { requestLogger, errorLogger } = require('./middlewares/loggers');
 // Middlewares
 
 mongoose.connect('mongodb://127.0.0.1:27017/bitfilmsdb', {
@@ -27,6 +28,7 @@ mongoose.connect('mongodb://127.0.0.1:27017/bitfilmsdb', {
 });
 
 app.use(express.json());
+app.use(requestLogger);
 
 app.get('/crash-test', () => {
   setTimeout(() => {
@@ -42,6 +44,7 @@ app.use(auth);
 app.use('/', userRouter);
 app.use('/', movieRouter);
 
+app.use(errorLogger);
 app.use(errors());
 
 app.use((err, req, res, next) => {
