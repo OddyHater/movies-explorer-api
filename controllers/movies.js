@@ -1,14 +1,23 @@
 /* eslint-disable no-unused-vars */
 const Movie = require('../models/movie');
 
+const BadRequestError = require('../errors/bad-request-err');
+
 module.exports.getMoiveList = (req, res, next) => {
   const { _id } = req.user;
 
-  // найти фильмы, где owner === _id
-  // прокинуть ошибки
+  Movie.find({ owner: _id })
+    .then((films) => {
+      if (!films) {
+        throw new BadRequestError('Something is wrong');
+      }
+      res.status(200).send({ message: films });
+    })
+    .catch(() => {
+      next(new BadRequestError('Something is wrong'));
+    });
 };
 
-// Дописать
 module.exports.createMovie = (req, res, next) => {
   const {
     country,
@@ -37,19 +46,23 @@ module.exports.createMovie = (req, res, next) => {
     nameRU,
     nameEN,
   })
-    .then(() => res.status(200).send({ message: 'Успех' }))
+    .then((film) => res.status(200).send({ message: film }))
 
     .catch((err) => {
       next(err);
     });
 };
 
-// Доработать ошибки
 module.exports.deleteMovie = (req, res, next) => {
   const { movieId } = req.body;
 
   Movie.findOneAndDelete({ movieId })
-    .then((movie) => res.status(200).send({ movie }))
+    .then((movie) => {
+      if (!movie) {
+        throw new BadRequestError('Фильм с таким id не найден');
+      }
+      res.status(200).send({ movie });
+    })
     .catch((err) => {
       next(err);
     });

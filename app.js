@@ -12,13 +12,14 @@ const movieRouter = require('./routes/movies');
 // Routes
 
 // Controllers
-const { createUser } = require('./controllers/users');
 const { login } = require('./controllers/login');
+const { createUser } = require('./controllers/users');
 // Controllers
 
 // Middlewares
 const { auth } = require('./middlewares/auth');
 const { requestLogger, errorLogger } = require('./middlewares/loggers');
+const { loginValidation, createUserValidation } = require('./middlewares/validation');
 // Middlewares
 
 mongoose.connect('mongodb://127.0.0.1:27017/bitfilmsdb', {
@@ -36,8 +37,8 @@ app.get('/crash-test', () => {
   }, 0);
 });
 
-app.post('/signin', login);
-app.use('/signup', createUser);
+app.post('/signin', loginValidation, login);
+app.use('/signup', createUserValidation, createUser);
 
 app.use(auth);
 
