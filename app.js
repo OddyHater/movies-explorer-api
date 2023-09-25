@@ -5,6 +5,7 @@ const { PORT = 3000 } = process.env;
 const app = express();
 
 const { errors } = require('celebrate');
+const { cors } = require('cors');
 
 // Routes
 const userRouter = require('./routes/users');
@@ -21,6 +22,8 @@ const { auth } = require('./middlewares/auth');
 const { requestLogger, errorLogger } = require('./middlewares/loggers');
 const { loginValidation, createUserValidation } = require('./middlewares/validation');
 // Middlewares
+
+app.use(cors());
 
 mongoose.connect('mongodb://127.0.0.1:27017/bitfilmsdb', {
   useNewUrlParser: true,
