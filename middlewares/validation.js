@@ -1,8 +1,9 @@
 const mongoose = require('mongoose');
 const { celebrate, Joi } = require('celebrate');
 
-// const linkPattern = /(https?:\/\/)(w{3}\.)?\w+[-.~:/?#[\]@!$&'()*+,;=]*#?/;
+const linkPattern = /(https?:\/\/)(w{3}\.)?\w+[-.~:/?#[\]@!$&'()*+,;=]*#?/;
 
+// users
 const getCurrentUserValidataion = celebrate({
   params: Joi.object().keys({
     userId: Joi.string().custom((value, helper) => {
@@ -35,12 +36,57 @@ const loginValidation = celebrate({
     password: Joi.string().required().min(8),
   }),
 });
+// users
+
+// movies
+const getMovieListValidation = celebrate({
+  params: Joi.object().keys({
+    user: Joi.object().keys({
+      _id: Joi.string().required(),
+    }).unknown(),
+  }).unknown(),
+});
+
+const createMovieValidation = celebrate({
+  body: Joi.object().keys({
+    country: Joi.string().required(),
+    director: Joi.string().required(),
+    duration: Joi.number().required(),
+    year: Joi.number().required(),
+    description: Joi.string().required(),
+    image: Joi.string().required().pattern(linkPattern),
+    trailerLink: Joi.string().required().pattern(linkPattern),
+    thumbnail: Joi.string().required().pattern(linkPattern),
+    movieId: Joi.number().required(),
+    nameRU: Joi.string().required(),
+    nameEN: Joi.string().required(),
+  }).unknown(),
+  params: Joi.object().keys({
+    user: Joi.object().keys({
+      _id: Joi.string().required(),
+    }).unknown(),
+  }).unknown(),
+});
+
+const deleteMovieValidation = celebrate({
+  body: Joi.object().keys({
+    owner: Joi.number().required(),
+  }).unknown(),
+});
+// movies
 
 module.exports = {
+
   // users
   getCurrentUserValidataion,
   updateProfileValidation,
   createUserValidation,
   loginValidation,
   // users
+
+  // movies
+  getMovieListValidation,
+  createMovieValidation,
+  deleteMovieValidation,
+  // movies
 };
