@@ -28,13 +28,13 @@ module.exports.getCurrentUser = (req, res, next) => {
 };
 
 module.exports.updateProfile = (req, res, next) => { // PATCH
-  const { name, about } = req.body;
-  if (!name || !about) {
+  const { name, email } = req.body;
+  if (!name || !email) {
     throw new BadRequestError('Переданы некорректные данные при обновлении профиля.');
   }
   User.findByIdAndUpdate(
     req.user._id,
-    { name, about },
+    { name, email },
     { new: true, runValidators: true },
   )
     .then((user) => {
