@@ -2,6 +2,8 @@
 const Movie = require('../models/movie');
 
 const BadRequestError = require('../errors/bad-request-err');
+const NotFoundError = require('../errors/not-found-err');
+const PermissionError = require('../errors/permission-err');
 
 module.exports.getMoiveList = (req, res, next) => {
   const { _id } = req.user;
@@ -9,7 +11,7 @@ module.exports.getMoiveList = (req, res, next) => {
   Movie.find({ owner: _id })
     .then((films) => {
       if (!films) {
-        throw new BadRequestError('Something is wrong');
+        throw new NotFoundError('Ошибка. Фильм не найден');
       }
       res.status(200).send({ message: films });
     })
@@ -58,11 +60,15 @@ module.exports.createMovie = (req, res, next) => {
 
 module.exports.deleteMovie = (req, res, next) => {
   const { movieId } = req.body;
+  const { _id } = req.user;
 
   Movie.findOneAndDelete({ movieId })
     .then((movie) => {
       if (!movie) {
         throw new BadRequestError('Фильм с таким id не найден');
+      }
+      if (movie.owner !== _id) {
+        throw new PermissionError('Ошибка доступа. Вы не можете удалить этот фильм');
       }
       res.status(200).send({ movie });
     })

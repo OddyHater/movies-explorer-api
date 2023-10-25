@@ -2,7 +2,7 @@ const bcrypt = require('bcrypt');
 const User = require('../models/user');
 
 const BadRequestError = require('../errors/bad-request-err');
-const EmailError = require('../errors/email-err');
+const EmailError = require('../errors/permission-err');
 
 module.exports.getCurrentUser = (req, res, next) => {
   const { _id } = req.user;
