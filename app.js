@@ -2,34 +2,27 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 
-const { PORT = 3000 } = process.env;
+const { PORT = 3000, NODE_ENV, DATABASE_URL } = process.env;
 const app = express();
-app.use(cors());
 
 const { errors } = require('celebrate');
 
 // Routes
-const userRouter = require('./routes/users');
-const movieRouter = require('./routes/movies');
+const router = require('./routes/index');
 // Routes
 
-// Controllers
-const { login } = require('./controllers/login');
-const { createUser } = require('./controllers/users');
-// Controllers
-
 // Middlewares
-const { auth } = require('./middlewares/auth');
 const { requestLogger, errorLogger } = require('./middlewares/loggers');
-const { loginValidation, createUserValidation } = require('./middlewares/validation');
+const errorHandle = require('./middlewares/error-handle');
 // Middlewares
 
-mongoose.connect('mongodb://127.0.0.1:27017/bitfilmsdb', {
+mongoose.connect(NODE_ENV === 'production' ? DATABASE_URL : 'mongodb://127.0.0.1:27017/bitfilmsdb', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
   autoIndex: true,
 });
 
+app.use(cors());
 app.use(express.json());
 app.use(requestLogger);
 
@@ -39,30 +32,10 @@ app.get('/crash-test', () => {
   }, 0);
 });
 
-app.post('/signin', loginValidation, login);
-app.use('/signup', createUserValidation, createUser);
-
-app.use(auth);
-
-app.use('/', userRouter);
-app.use('/', movieRouter);
-
+app.use(router);
 app.use(errorLogger);
 app.use(errors());
-
-app.use((err, req, res, next) => {
-  const { statusCode = 500, message } = err;
-
-  res
-    .status(statusCode)
-    .send({
-      message: statusCode === 500
-        ? 'На сервере произошла ошибка'
-        : message,
-    });
-
-  next();
-});
+app.use(errorHandle);
 
 app.listen(PORT, () => {
   console.log(PORT, 'here we go again');

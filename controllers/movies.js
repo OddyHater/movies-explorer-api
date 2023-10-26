@@ -63,16 +63,22 @@ module.exports.deleteMovie = (req, res, next) => {
   const { movieId } = req.body;
   const { _id } = req.user;
 
-  Movie.findOneAndDelete({ movieId })
+  Movie.findById({ movieId })
     .then((movie) => {
       if (!movie) {
         throw new NotFoundError('Фильм с таким id не найден');
       }
 
-      if (movie.owner._id.toString() !== _id) {
-        throw new DeleteMovieError('Вы не можете удалить не свой фильм');
+      if (movie.owner._id.toString() === _id) {
+        movie.remove()
+          .then(() => {
+            res.status(200).send({ data: movie });
+          })
+          .catch((err) => {
+            next(err);
+          });
       } else {
-        res.status(200).send({ data: movie });
+        throw new DeleteMovieError('Вы не можете удалить не свой фильм');
       }
     })
     .catch((err) => {
