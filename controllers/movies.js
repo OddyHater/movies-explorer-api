@@ -3,7 +3,6 @@ const Movie = require('../models/movie');
 
 const BadRequestError = require('../errors/bad-request-err');
 const NotFoundError = require('../errors/not-found-err');
-const PermissionError = require('../errors/permission-err');
 const DeleteMovieError = require('../errors/delete-movie-err');
 
 module.exports.getMoiveList = (req, res, next) => {
@@ -60,26 +59,26 @@ module.exports.createMovie = (req, res, next) => {
 };
 
 module.exports.deleteMovie = (req, res, next) => {
-  const { movieId } = req.body;
+  const { movieId } = req.params;
   const { _id } = req.user;
 
-  Movie.findById({ movieId })
+  Movie.findById(movieId)
     .then((movie) => {
       if (!movie) {
         throw new NotFoundError('Фильм с таким id не найден');
       }
 
-      if (movie.owner._id.toString() === _id) {
-        movie.remove()
-          .then(() => {
-            res.status(200).send({ data: movie });
-          })
-          .catch((err) => {
-            next(err);
-          });
-      } else {
+      if (movie.owner._id.toString() !== _id) {
         throw new DeleteMovieError('Вы не можете удалить не свой фильм');
       }
+
+      return movie.deleteOne()
+        .then(() => {
+          res.status(200).send({ data: movie });
+        })
+        .catch((err) => {
+          next(err);
+        });
     })
     .catch((err) => {
       next(err);

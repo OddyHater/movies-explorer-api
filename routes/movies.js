@@ -11,6 +11,6 @@ router.get('/movies', getMoiveList);
 
 router.patch('/movies', createMovieValidation, createMovie);
 
-router.delete('/movies/_id', deleteMovieValidation, deleteMovie);
+router.delete('/movies/:movieId', deleteMovieValidation, deleteMovie);
 
 module.exports = router;
